@@ -14,19 +14,19 @@ Check if Expert is installed, and install it if not.
 2. If found, check version: `expert --version`
 3. If NOT found, install via one of these methods:
 
-### Via escript (recommended)
+### Download pre-built binary (recommended)
 ```bash
-mix escript.install hex expert_lsp
-```
+# macOS ARM (Apple Silicon)
+gh release download v0.1.0-rc.6 --pattern 'expert_darwin_arm64' --repo elixir-lang/expert --dir /tmp
+cp /tmp/expert_darwin_arm64 ~/.local/bin/expert && chmod +x ~/.local/bin/expert
 
-### Via Burrito release (single binary)
-Download the latest release from https://github.com/elixir-tools/expert/releases and place it in your PATH.
+# macOS Intel
+gh release download v0.1.0-rc.6 --pattern 'expert_darwin_amd64' --repo elixir-lang/expert --dir /tmp
+cp /tmp/expert_darwin_amd64 ~/.local/bin/expert && chmod +x ~/.local/bin/expert
 
-### Via asdf
-```bash
-asdf plugin add expert
-asdf install expert latest
-asdf global expert latest
+# Linux
+gh release download v0.1.0-rc.6 --pattern 'expert_linux_amd64' --repo elixir-lang/expert --dir /tmp
+cp /tmp/expert_linux_amd64 ~/.local/bin/expert && chmod +x ~/.local/bin/expert
 ```
 
 4. Verify: `expert --version`

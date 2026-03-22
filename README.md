@@ -1,16 +1,33 @@
 # expert-lsp — Elixir Code Intelligence for Claude Code
 
-A Claude Code plugin that connects the [Expert LSP](https://expert-lsp.org) — the official unified Elixir language server — to give Claude real-time code intelligence while working on Elixir projects.
+A Claude Code plugin that connects [Expert LSP](https://expert-lsp.org) — the official unified Elixir language server — to give Claude real-time code intelligence while working on Elixir projects.
 
 ## What Claude gains
 
 - **Auto-diagnostics**: After every file edit, Expert analyzes changes and reports errors, warnings, and missing imports. Claude sees issues immediately and fixes them in the same turn.
-- **Code navigation**: Go to definition, find references, hover for type info, list symbols — precise navigation instead of grep-based search.
+- **Code navigation**: Go to definition, find references, hover for type info, list symbols, code actions — precise navigation instead of grep-based search.
+
+### Verified capabilities
+
+| Capability | Status |
+|-----------|--------|
+| File change sync | Yes |
+| Code completion | Yes |
+| Hover / type info | Yes |
+| Go to definition | Yes |
+| Find references | Yes |
+| Document symbols | Yes |
+| Workspace symbols | Yes |
+| Code actions (quick fixes) | Yes |
+| Code lens | Yes |
+| Formatting | Yes |
+| Execute commands | Yes |
 
 ## Requirements
 
 - **Claude Code** v1.0.33+
-- **Expert LSP** binary installed and in your `$PATH`
+- **Expert LSP** v0.1.0-rc.6+ installed and in your `$PATH`
+- **Elixir** 1.15+ with OTP 26+
 
 ## Install the plugin
 
@@ -24,20 +41,49 @@ claude --plugin-dir /path/to/expert-lsp
 
 ## Install Expert LSP
 
-The plugin configures the connection but doesn't include the server binary. Install Expert:
+The plugin configures the connection but doesn't include the server binary. Install Expert using one of these methods:
+
+### Download pre-built binary (recommended)
+
+Download the latest release for your platform from [github.com/elixir-lang/expert/releases](https://github.com/elixir-lang/expert/releases) and place it in your `$PATH`:
 
 ```bash
-# Via escript (recommended)
-mix escript.install hex expert_lsp
+# macOS ARM (Apple Silicon)
+gh release download v0.1.0-rc.6 --pattern 'expert_darwin_arm64' --repo elixir-lang/expert --dir /tmp
+cp /tmp/expert_darwin_arm64 ~/.local/bin/expert
+chmod +x ~/.local/bin/expert
 
-# Via Burrito release (single binary)
-# Download from https://github.com/elixir-tools/expert/releases
+# macOS Intel
+gh release download v0.1.0-rc.6 --pattern 'expert_darwin_amd64' --repo elixir-lang/expert --dir /tmp
+cp /tmp/expert_darwin_amd64 ~/.local/bin/expert
+chmod +x ~/.local/bin/expert
 
-# Via asdf
-asdf plugin add expert && asdf install expert latest && asdf global expert latest
+# Linux
+gh release download v0.1.0-rc.6 --pattern 'expert_linux_amd64' --repo elixir-lang/expert --dir /tmp
+cp /tmp/expert_linux_amd64 ~/.local/bin/expert
+chmod +x ~/.local/bin/expert
 ```
 
-Verify: `expert --version`
+### Nightly builds
+
+```bash
+gh release download nightly --pattern 'expert_darwin_arm64' --repo elixir-lang/expert --dir /tmp
+cp /tmp/expert_darwin_arm64 ~/.local/bin/expert
+chmod +x ~/.local/bin/expert
+```
+
+### Verify installation
+
+```bash
+expert --version
+# Should output: 0.1.0-rc.6 (or newer)
+```
+
+Make sure `~/.local/bin` is in your `$PATH`. Add this to your `~/.zshrc` if needed:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
 
 ## Supported file types
 
@@ -49,17 +95,35 @@ Verify: `expert --version`
 
 ## How it works
 
-This plugin provides an `.lsp.json` configuration that tells Claude Code how to connect to Expert via stdio transport. Expert runs as a subprocess, analyzing your project files and providing real-time diagnostics and navigation.
+This plugin provides an `.lsp.json` configuration that tells Claude Code how to connect to Expert via stdio transport. Expert runs as a subprocess spawned by Claude Code, analyzing your project files and providing real-time diagnostics and navigation.
+
+When you edit an Elixir file, Expert analyzes the changes and pushes diagnostics back to Claude Code. Claude sees type errors, missing imports, and compilation warnings immediately and can fix them in the same turn — without you running `mix compile` manually.
 
 ## Expert LSP vs ElixirLS
 
 Expert is the [official unified Elixir language server](https://elixir-lang.org/blog/2024/08/15/welcome-elixir-language-server-team/), created by the Elixir core team by merging the three previous implementations (ElixirLS, Lexical, Next LS). It's built on the Lexical codebase with Next LS components for single-binary releases and protocol abstraction.
 
-Expert is currently in release candidate status. If you encounter issues, you can fall back to the `elixir-ls-lsp` plugin which uses the legacy ElixirLS server.
+Expert is currently in release candidate status (v0.1.0-rc.6 as of March 2026). If you encounter issues, you can fall back to the `elixir-ls-lsp` plugin which uses the legacy ElixirLS server:
+
+```bash
+claude plugin disable expert-lsp
+claude plugin enable elixir-ls-lsp@claude-plugins-official
+```
 
 ## Configuration
 
-The plugin uses sensible defaults. Expert is started with `--stdio` transport and will auto-restart up to 3 times if it crashes.
+The plugin uses sensible defaults:
+- Transport: stdio (`expert --stdio`)
+- Auto-restart on crash: up to 3 times
+- No additional initialization options required
+
+## Troubleshooting
+
+**"Executable not found in $PATH"**: Install Expert using the instructions above and ensure `~/.local/bin` is in your PATH.
+
+**Plugin not loading**: Run `/plugin` in Claude Code and check the Errors tab. If Expert crashes on startup, try the nightly build which may have fixes.
+
+**Conflicts with elixir-ls-lsp**: Disable one before enabling the other. Both configure an LSP for `.ex` files and may conflict.
 
 ## License
 
