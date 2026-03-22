@@ -6,7 +6,7 @@
     "name": "Chris O'Halloran",
     "url": "https://github.com/chrisohalloran"
   },
-  "repository": "https://github.com/chrisohalloran/expert-lsp-claude-code",
+  "repository": "https://github.com/striking/expert-lsp-claude-code",
   "license": "MIT",
   "keywords": ["elixir", "lsp", "code-intelligence", "expert", "beam", "phoenix", "liveview"]
 }
